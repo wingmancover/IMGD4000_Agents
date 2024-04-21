@@ -5,7 +5,7 @@
 
 
 #define AGENT_COUNT 10    
-#define MAX_SPEED 2000.f
+#define MAX_SPEED 100.f
 
 void UFlockingManager::Init(UWorld* world, UStaticMeshComponent* mesh) {
     UE_LOG(LogTemp, Warning, TEXT("MANAGER INIT"));
@@ -47,7 +47,7 @@ FVector UFlockingManager::Rule1(AAgent* boid) {
         return (perceivedCenter - boid->GetActorLocation()) / 100.0f;
     }
 
-    return FVector(0, 0, 0); // No adjustment if alone
+    return FVector(0, 0, 0);
 }
 
 
@@ -86,22 +86,41 @@ FVector UFlockingManager::Rule3(AAgent* boid) {
         return (perceivedVelocity - boid->Velocity) / 8.0f;
     }
 
-    return FVector(0, 0, 0); // No adjustment if alone
+    return FVector(0, 0, 0);
 }
 
 
 void UFlockingManager::Flock(float DeltaTime) {
+    FVector goal = FVector(100.0f, 100.0f, 100.0f); // Example goal location
 
     for (auto boid : Agents) {
         FVector v1 = Rule1(boid);
         FVector v2 = Rule2(boid);
         FVector v3 = Rule3(boid);
+        FVector v4 = StrongWind(boid);
+        FVector v5 = TendToPlace(boid, goal);
 
-        // Sum of the rules
-        boid->Velocity = v1 + v2 + v3;
+        boid->Velocity += v1 + v2 + v3 + v4 + v5;
         boid->Velocity = boid->Velocity.GetClampedToMaxSize(MAX_SPEED);
 
         FVector newLocation = boid->GetActorLocation() + boid->Velocity * DeltaTime;
         boid->SetActorLocation(newLocation);
     }
+}
+
+// Example wind vector pushing along the X-axis
+FVector UFlockingManager::StrongWind(AAgent* boid) {
+    FVector wind = FVector(0.8f, 0.0f, 0.0f);
+
+    // Simulate wind resistance that the faster the boid is moving in the wind's direction, the less effect the wind has
+    float windResistance = FMath::Clamp(1.0f - (boid->Velocity.X / MAX_SPEED), 0.0f, 1.0f);
+    wind *= windResistance;
+
+    return wind;
+}
+
+
+// Steer each boid towards a particular place
+FVector UFlockingManager::TendToPlace(AAgent* boid, const FVector& place) {
+    return (place - boid->GetActorLocation()) / 100.0f;
 }

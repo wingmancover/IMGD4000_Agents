@@ -19,6 +19,9 @@ public:
 	void Init(UWorld* world, UStaticMeshComponent* mesh);
 	void Flock(float DeltaTime);
 
+	FVector StrongWind(AAgent* boid);
+	FVector TendToPlace(AAgent* boid, const FVector& place);
+
 private:
 	UWorld* World;
 	bool initialized;
