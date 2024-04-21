@@ -15,5 +15,5 @@ void AFlockingGameModeBase::BeginPlay() {
 
 void AFlockingGameModeBase::Tick(float DeltaTime) {
     Super::Tick(DeltaTime);
-    Manager->Flock();
+    Manager->Flock(DeltaTime);
 };
