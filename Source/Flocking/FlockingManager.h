@@ -14,6 +14,7 @@ public:
 
 	FVector Rule1(AAgent* boid); // Boids Rule1 Function
 	FVector Rule2(AAgent* boid); // Boids Rule2 Function
+	FVector Rule3(AAgent* boid); // Boids Rule3 Function
 
 	void Init(UWorld* world, UStaticMeshComponent* mesh);
 	void Flock(float DeltaTime);

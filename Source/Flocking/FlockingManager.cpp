@@ -69,6 +69,25 @@ FVector UFlockingManager::Rule2(AAgent* boid) {
     return repulsionVector;
 }
 
+// Rule 3: Boids try to match velocity with near boids.
+FVector UFlockingManager::Rule3(AAgent* boid) {
+    FVector perceivedVelocity = FVector(0, 0, 0);
+    int count = 0;
+
+    for (auto& other : Agents) {
+        if (other != boid) {
+            perceivedVelocity += other->Velocity;
+            count++;
+        }
+    }
+
+    if (count > 0) {
+        perceivedVelocity /= count;
+        return (perceivedVelocity - boid->Velocity) / 8.0f;
+    }
+
+    return FVector(0, 0, 0); // No adjustment if alone
+}
 
 
 void UFlockingManager::Flock(float DeltaTime) {
@@ -76,9 +95,10 @@ void UFlockingManager::Flock(float DeltaTime) {
     for (auto boid : Agents) {
         FVector v1 = Rule1(boid);
         FVector v2 = Rule2(boid);
+        FVector v3 = Rule3(boid);
 
         // Sum of the rules
-        boid->Velocity = v1 + v2;
+        boid->Velocity = v1 + v2 + v3;
         boid->Velocity = boid->Velocity.GetClampedToMaxSize(MAX_SPEED);
 
         FVector newLocation = boid->GetActorLocation() + boid->Velocity * DeltaTime;
